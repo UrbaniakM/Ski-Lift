@@ -25,10 +25,7 @@ class Skier {
         
         int numberOfTokens;
 
-        void SendRequest(int priority, int weight){
-            Request request = Request();
-            request.priority = priority;
-            request.weight = weight;
+        void SendRequest(Request request){
             int message[2];
             message[0] = request.priority;
             message[1] = request.weight;
@@ -36,7 +33,10 @@ class Skier {
         }
 
         void SendRequest(){
-            SendRequest(this->priority, this->weight);
+            Request request = Request();
+            request.priority = this->priority;
+            request.weight = this->weight;
+            SendRequest(request);
             waitingForTokens = true;
         }
 
