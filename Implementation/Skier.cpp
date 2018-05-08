@@ -25,7 +25,7 @@ class Skier {
             // TODO
         }
 
-        void ReceiveRequest()(){
+        void ReceiveRequest(){
             // TODO
         }
     public:
