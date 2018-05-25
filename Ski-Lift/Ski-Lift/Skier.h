@@ -12,6 +12,10 @@ public:
 	~Skier();
 	void SendRequest();
 	void ReceiveRequest();
+	void SendTokens();
+	void ReceiveTokens();
+	void SendRelease();
+	void ReceiveRelease();
 	int GetRank();
 	void PrintNodes();
 	void loop();
@@ -24,4 +28,10 @@ private:
 	int priority;
 	int weight;
 	int rank;
+	void ImReadyController();
+	void ImDoneController();
+	void ReceivedRequestController();
+	void SendRequestController();
+	void ReceivedTokensController();
+	void RecievedReleaseController();
 };

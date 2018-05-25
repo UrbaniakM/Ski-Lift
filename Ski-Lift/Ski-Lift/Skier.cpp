@@ -41,7 +41,19 @@ void Skier::ReceiveRequest()
 {
 	// TODO
 }
-int Skier::GetRank() 
+void Skier::SendTokens()
+{
+}
+void Skier::ReceiveTokens()
+{
+}
+void Skier::SendRelease()
+{
+}
+void Skier::ReceiveRelease()
+{
+}
+int Skier::GetRank()
 {
 	return rank;
 }
@@ -52,6 +64,35 @@ void Skier::PrintNodes()
 void Skier::loop() 
 {
 	while (true) {
-		// TODO
+		ImReadyController();
+		SendRequestController();
+		ReceivedRequestController();
+		RecievedReleaseController();
+		ReceivedTokensController();
+		ImDoneController();
 	}
+}
+
+void Skier::ImReadyController()
+{
+}
+
+void Skier::ImDoneController()
+{
+}
+
+void Skier::ReceivedRequestController()
+{
+}
+
+void Skier::SendRequestController()
+{
+}
+
+void Skier::ReceivedTokensController()
+{
+}
+
+void Skier::RecievedReleaseController()
+{
 }
