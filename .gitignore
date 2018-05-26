@@ -377,3 +377,10 @@ __pycache__/
 
 # End of https://www.gitignore.io/api/c,c++,visualstudio,visualstudiocode
 Implementation/ConstantsClass/
+*.depend
+*.vcxproj
+*.filters
+*.vcxproj
+*.filters
+*.vcxproj
+*.filters
