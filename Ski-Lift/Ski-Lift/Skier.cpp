@@ -74,6 +74,7 @@ void Skier::consumeTokens()
 		allRequests.erase(current);
 
 		if (current == me) {
+			SendPriorityIncrement(this->rank);
 			startWorking();
 				//Decreases myTokens
 		}
@@ -97,7 +98,13 @@ void Skier::consumeTokens()
 
 void Skier::acceptSentRequests()
 {
-	Request request = ReceiveRequest();
+	Request request;
+	while (!newRequests.empty()) {
+		request = newRequests.simple_pop();
+		SendRequest(request);
+	}
+
+	request = ReceiveRequest();
 	while (request.correct) {
 		allRequests.insert(request);
 		newRequests.insert(request);
@@ -112,6 +119,9 @@ void Skier::acceptSentReleases()
 			sentRequests.erase(release);
 			allRequests.erase(release);
 		}
+		else {
+			myTokens += release.weight;
+		}
 	}
 }
 
@@ -122,6 +132,20 @@ void Skier::acceptSentTokens()
 	{
 		myTokens += newTokens;
 		newTokens = ReceiveTokens();
+	}
+}
+
+void Skier::acceptPriorityIncrement()
+{
+	int pi_id = ReceivePriorityIncrement();
+	while (pi_id != -1) {
+		if (pi_id != this->rank) {
+			SendPriorityIncrement(pi_id);
+			this->allRequests.increasePriorityExcept(pi_id);
+			this->newRequests.increasePriorityExcept(pi_id);
+			this->sentRequests.increasePriorityExcept(pi_id);
+		}
+		pi_id = ReceivePriorityIncrement();
 	}
 }
 
@@ -159,6 +183,14 @@ Request Skier::ReceiveRelease()
 	//	{r.correct=false;}
 	r.correct = false;
 	return r;
+}
+void Skier::SendPriorityIncrement(int id)
+{
+}
+int Skier::ReceivePriorityIncrement()
+{
+	//returns -1 if no Received
+	return -1;
 }
 int Skier::GetRank()
 {

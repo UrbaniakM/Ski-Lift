@@ -17,6 +17,9 @@ public:
 	void SendRelease(Request request);
 	Request ReceiveRelease();
 
+	void SendPriorityIncrement(int id);
+	int ReceivePriorityIncrement();
+
 	int GetRank();
 	void PrintNodes();
 	void loop();
@@ -40,6 +43,7 @@ private:
 	void acceptSentRequests();
 	void acceptSentReleases();
 	void acceptSentTokens();
+	void acceptPriorityIncrement();
 	/*
 	void ImReadyController();
 	void ImDoneController();

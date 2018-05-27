@@ -35,6 +35,14 @@ Request MySortedList::pop()
 	return request;
 }
 
+Request MySortedList::simple_pop()
+{
+	std::list<Request>::iterator it = MyList.begin();
+	Request request = *it;
+	MyList.erase(it);
+	return request;
+}
+
 void MySortedList::insert(Request element)
 {
 	MyList.push_back(element);
@@ -80,5 +88,18 @@ void MySortedList::increasePriority()
 	std::list<Request>::iterator it;
 	for (it = MyList.begin(); it != MyList.end(); it++) {
 		it->priority++;
+	}
+}
+
+void MySortedList::increasePriorityExcept(int sender)
+{
+	std::list<Request>::iterator it;
+	for (it = MyList.begin(); it != MyList.end(); it++) {
+		if (it->id != sender) {
+			it->priority++;
+		}
+		else {
+			MyList.erase(it);
+		}
 	}
 }
