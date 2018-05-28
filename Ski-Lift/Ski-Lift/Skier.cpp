@@ -192,7 +192,7 @@ int Skier::ReceiveTokens()
 void Skier::SendRelease(Request request){
 	int message[3];
 	message[0] = request.priority;
-	message[1] = request.weight;
+	message[1] = -request.weight;
 	message[2] = request.id;
 	MPI_Send( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
 }
