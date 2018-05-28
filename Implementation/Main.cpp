@@ -1,7 +1,7 @@
 #include "mpi.h"
 #include <stdio.h>
-#include "Skier.cpp"
 
+#include "Skier.cpp"
 #include "Constants.h"
 
 int main(int argc, char **argv){
@@ -19,6 +19,7 @@ int main(int argc, char **argv){
 
     Skier skier = Skier(rank, size, tokens);
     skier.PrintNodes();
+    skier.loop();
 
     MPI_Finalize();
 }

@@ -5,7 +5,7 @@
 
 class Skier
 {
-public:
+  public:
 
 	Skier(int rank, int size, int tokens);
 	~Skier();
@@ -25,12 +25,10 @@ public:
 	void loop();
 	void startWorking();
 	bool isWorking();
-private:
+  private:
 	MySortedList allRequests;
 	MySortedList newRequests;
 	MySortedList sentRequests;
-	//Skier* leftNode;
-	//Skier* rightNode;
 	int myTokens;
 	int leftNode;
 	int rightNode;

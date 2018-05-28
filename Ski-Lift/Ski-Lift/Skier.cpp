@@ -3,12 +3,14 @@
 #include <stdio.h>
 #include <iostream>
 
+#include "Constants.h"
 
-Skier::Skier(int rank, int size)
+Skier::Skier(int rank, int size, int tokens)
 {
 	this->rank = rank;
 	priority = 0;
-	// TODO: rand weight
+	myTokens = tokens;
+    weight = rand()%(MAX_WEIGHT - MIN_WEIGHT) + MIN_WEIGHT;
 
 	// create ring network
 	if (rank == size) {
@@ -151,41 +153,68 @@ void Skier::acceptPriorityIncrement()
 
 void Skier::SendRequest(Request request)
 {
-	//MPI_Send( PRIORITY );
-	//MPI_Send( WEIGHT );
-	// TODO
+	int message[3];
+	message[0] = request.priority;
+	message[1] = request.weight;
+	message[2] = request.id;
+	MPI_Send( message, 3, MPI_INT, rightNode, 0, MPI_COMM_WORLD);
 }
+
 Request Skier::ReceiveRequest()
 {
-	Request r;
+	Request request;
+	int message[3];
+	/** Blocking receive for requests from left node */
+	MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	Request request = Request();
+	request.priority = message[0];
+	request.weight = message[1];
+	request.id = message[2];
 	// TODO
 	//if(!succeded)
 	//	{r.correct=false;}
-	r.correct = false;
-	return r;
+	request.correct = false;
+	return request;
 }
-void Skier::SendTokens(int tokens)
-{
+void Skier::SendTokens(int tokens){
+	int message[1];
+	message[0] = tokens;
+	MPI_Send( message, 1, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
 }
+
 int Skier::ReceiveTokens()
 {
-    //If fail return -1
-    return -1;
+	int message[1];
+	/** Blocking receive for tokens from right node */
+	MPI_Recv(message, 1, MPI_INT, rightNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    return message[1];
 }
-void Skier::SendRelease(Request request)
-{
+void Skier::SendRelease(Request request){
+	int message[3];
+	message[0] = request.priority;
+	message[1] = request.weight;
+	message[2] = request.id;
+	MPI_Send( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
 }
+
 Request Skier::ReceiveRelease()
 {
-	Request r;
+	int message[3];
+	/** Blocking receive for requests from left node */
+	MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	Request request = Request();
+	request.priority = message[0];
+	request.weight = message[1];
+	request.id = message[2];
 	// TODO
 	//if(!succeded)
 	//	{r.correct=false;}
-	r.correct = false;
-	return r;
+	request.correct = false;
+	return request;
 }
 void Skier::SendPriorityIncrement(int id)
 {
+	
 }
 int Skier::ReceivePriorityIncrement()
 {
