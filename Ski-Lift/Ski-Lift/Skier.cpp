@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "Constants.h"
+//#include "Constants.h"
 
 Skier::Skier(int rank, int size, int tokens)
 {
 	this->rank = rank;
 	priority = 0;
 	myTokens = tokens;
-    weight = rand()%(MAX_WEIGHT - MIN_WEIGHT) + MIN_WEIGHT;
+    //weight = rand()%(MAX_WEIGHT - MIN_WEIGHT) + MIN_WEIGHT;
 
 	// create ring network
 	if (rank == size) {
@@ -157,7 +157,7 @@ void Skier::SendRequest(Request request)
 	message[0] = request.priority;
 	message[1] = request.weight;
 	message[2] = request.id;
-	MPI_Send( message, 3, MPI_INT, rightNode, 0, MPI_COMM_WORLD);
+	//MPI_Send( message, 3, MPI_INT, rightNode, 0, MPI_COMM_WORLD);
 }
 
 Request Skier::ReceiveRequest()
@@ -165,8 +165,8 @@ Request Skier::ReceiveRequest()
 	Request request;
 	int message[3];
 	/** Blocking receive for requests from left node */
-	MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	Request request = Request();
+	//MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	//Request request = Request();
 	request.priority = message[0];
 	request.weight = message[1];
 	request.id = message[2];
@@ -179,14 +179,14 @@ Request Skier::ReceiveRequest()
 void Skier::SendTokens(int tokens){
 	int message[1];
 	message[0] = tokens;
-	MPI_Send( message, 1, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
+	//MPI_Send( message, 1, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
 }
 
 int Skier::ReceiveTokens()
 {
 	int message[1];
 	/** Blocking receive for tokens from right node */
-	MPI_Recv(message, 1, MPI_INT, rightNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	//MPI_Recv(message, 1, MPI_INT, rightNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     return message[1];
 }
 void Skier::SendRelease(Request request){
@@ -194,14 +194,14 @@ void Skier::SendRelease(Request request){
 	message[0] = request.priority;
 	message[1] = -request.weight;
 	message[2] = request.id;
-	MPI_Send( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
+	//MPI_Send( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
 }
 
 Request Skier::ReceiveRelease()
 {
 	int message[3];
 	/** Blocking receive for requests from left node */
-	MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	//MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	Request request = Request();
 	request.priority = message[0];
 	request.weight = message[1];

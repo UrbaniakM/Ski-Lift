@@ -31,24 +31,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="MySortedList.cpp" />
-		<Unit filename="MySortedList.h" />
-		<Unit filename="Request.h" />
-		<Unit filename="Ski-Lift.cbp" />
-		<Unit filename="Skier.cpp" />
-		<Unit filename="Skier.h" />
-		<Unit filename="TimeoutManager.h" />
-		<Unit filename="algorytm_ring.pseudocode" />
-		<Unit filename="helping_functions.cpp" />
-		<Unit filename="main.cpp" />
-		<Unit filename="main.h" />
-		<Unit filename="targetver.h" />
-		<Unit filename="troubleshootingtests.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
 			<debugger />
-			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
