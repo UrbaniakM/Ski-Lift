@@ -11,13 +11,12 @@ Michał Biderman
 
 Type in console
 ```
-mkdir Build
-mpic++ Implementation/Main.cpp -o Build/Main
+mpic++ Ski-Lift/Ski-Lift/*.cpp -o Main
 ```
 
 ### Running
 
 Type in console
 ```
-mpirun -n 4 Build/Main
+mpirun -n 4 Main
 ```
