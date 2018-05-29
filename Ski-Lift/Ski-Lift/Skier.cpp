@@ -1,5 +1,6 @@
 #include "Skier.h"
 #include "Request.h"
+#include "PipeCtrl.h"
 #include <stdio.h>
 #include <iostream>
 
@@ -34,6 +35,8 @@ Skier::~Skier()
 
 void Skier::loop()
 {
+	pipeCtrl = forkpipe(this->leftNode, this->rightNode);
+	std::cout << "Rank: " << this->rank << std::endl;
 	while (true) {
 
 		consumeTokens();
@@ -96,6 +99,9 @@ void Skier::consumeTokens()
 
 		current = allRequests.best();
 	}
+	if (myTokens > 0 && !allRequests.empty() && !(current == me)) {
+		SendTokens(myTokens);
+	}
 }
 
 void Skier::acceptSentRequests()
@@ -117,13 +123,10 @@ void Skier::acceptSentReleases()
 {
 	Request release = ReceiveRelease();
 	while (release.correct) {
-		if (sentRequests.contains(release)) {
-			sentRequests.erase(release);
-			allRequests.erase(release);
-		}
-		else {
-			myTokens += release.weight;
-		}
+		int rest = sentRequests.decrease(release);
+		release.weight -= rest;
+		allRequests.decrease(release);
+		myTokens += rest;
 	}
 }
 
@@ -153,28 +156,12 @@ void Skier::acceptPriorityIncrement()
 
 void Skier::SendRequest(Request request)
 {
-	int message[3];
-	message[0] = request.priority;
-	message[1] = request.weight;
-	message[2] = request.id;
-	//MPI_Send( message, 3, MPI_INT, rightNode, 0, MPI_COMM_WORLD);
+	pipeCtrl.sendRequest(request.priority, request.weight, request.id, rightNode);
 }
 
 Request Skier::ReceiveRequest()
 {
-	Request request;
-	int message[3];
-	/** Blocking receive for requests from left node */
-	//MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	//Request request = Request();
-	request.priority = message[0];
-	request.weight = message[1];
-	request.id = message[2];
-	// TODO
-	//if(!succeded)
-	//	{r.correct=false;}
-	request.correct = false;
-	return request;
+	return pipeCtrl.readRequest();
 }
 void Skier::SendTokens(int tokens){
 	int message[1];
@@ -184,42 +171,23 @@ void Skier::SendTokens(int tokens){
 
 int Skier::ReceiveTokens()
 {
-	int message[1];
-	/** Blocking receive for tokens from right node */
-	//MPI_Recv(message, 1, MPI_INT, rightNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    return message[1];
+	return pipeCtrl.readTokens();
 }
 void Skier::SendRelease(Request request){
-	int message[3];
-	message[0] = request.priority;
-	message[1] = -request.weight;
-	message[2] = request.id;
-	//MPI_Send( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
+	pipeCtrl.sendRelease(request.priority, request.weight, request.id, rightNode);
 }
 
 Request Skier::ReceiveRelease()
 {
-	int message[3];
-	/** Blocking receive for requests from left node */
-	//MPI_Recv( message, 3, MPI_INT, leftNode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	Request request = Request();
-	request.priority = message[0];
-	request.weight = message[1];
-	request.id = message[2];
-	// TODO
-	//if(!succeded)
-	//	{r.correct=false;}
-	request.correct = false;
-	return request;
+	return pipeCtrl.readRelease();
 }
 void Skier::SendPriorityIncrement(int id)
 {
-	
+	pipeCtrl.sendPriorityIncrement(id, rightNode);
 }
 int Skier::ReceivePriorityIncrement()
 {
-	//returns -1 if no Received
-	return -1;
+	return pipeCtrl.readPriorityIncrement();
 }
 int Skier::GetRank()
 {

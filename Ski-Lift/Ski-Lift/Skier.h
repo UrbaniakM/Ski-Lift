@@ -1,6 +1,7 @@
 #pragma once
 #include <set>
 #include "MySortedList.h"
+#include "PipeCtrl.h"
 #include "Request.h"
 
 class Skier
@@ -37,6 +38,7 @@ private:
 	int priority;
 	int weight;
 	int rank;
+	PipeCtrl pipeCtrl;
 
 
 	void consumeTokens();

@@ -19,5 +19,6 @@ public:
 	int size();
 	void increasePriority();
 	void increasePriorityExcept(int sender);
+	int decrease(Request element)
 };
 

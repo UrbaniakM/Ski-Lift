@@ -73,6 +73,32 @@ bool MySortedList::contains(Request element)
 	}
 }
 
+int MySortedList::decrease(Request element)
+{
+	std::list<Request>::iterator it;
+	std::list<Request>::iterator forErase= MyList.end();
+	for (it = MyList.begin(); it != MyList.end(); it++) {
+		if (forErase != MyList.end()) {
+			MyList.erase(forErase);
+			forErase = MyList.end();
+		}
+		if (element == (*it)) {
+			if (element.weight > it->weight) {
+				forErase = it;
+				element.weight -= it->weight;
+			}
+			else {
+				it->weight -= element.weight;
+				return 0;
+			}
+		}
+	}
+	if (forErase != MyList.end()) {
+		MyList.erase(forErase);
+		forErase = MyList.end();
+	}
+}
+
 bool MySortedList::empty()
 {
 	return MyList.empty();

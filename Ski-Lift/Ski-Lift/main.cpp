@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "Skier.h"
+#include "PipeCtrl.h"
 #include "main.h"
 #include "mpi.h"
 
