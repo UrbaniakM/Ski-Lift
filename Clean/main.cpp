@@ -22,8 +22,7 @@ int main(int argc, char **argv) {
     if(rank == 0){
 		tokens += LIFT_CAPACITY % size;
     }
-	int weight = LIFT_CAPACITY / size + 1;//int(1.5 * float( LIFT_CAPACITY / size));
-	//weight = std::rand() % weight + 1;
+	int weight = LIFT_CAPACITY / size + 1;
     Skier skier = Skier(rank, size, tokens, weight);
     skier.PrintNodes();
     skier.loop();

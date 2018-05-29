@@ -1,4 +1,4 @@
-
+/*
 #include "main.h"
 #include "Skier.h"
 #include "MySortedList.h"
@@ -22,3 +22,4 @@ void troubleshootingtests(int test_no)
 	}
 	return;
 }
+*/

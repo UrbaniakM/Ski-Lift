@@ -4,6 +4,7 @@
 #include<unistd.h>
 #include<sys/types.h>
 #include<string.h>
+#include<iostream>
 #include<sys/wait.h>
 #include "mpi.h"
 #include "main.h"
@@ -53,7 +54,7 @@ PipeCtrl forkpipe(int leftnode, int rightnode)
 	// Parent process
 	else if (p > 0)
 	{
-		PipeCtrl pc(fd0[1], fd1[1], fd2[1], fd3[0]);
+		PipeCtrl pc(fd0[1], fd1[1], fd2[1], fd3[1]);
 
 		close(fd0[0]);
 		close(fd1[0]);
@@ -75,12 +76,15 @@ PipeCtrl forkpipe(int leftnode, int rightnode)
 		close(fd3[1]);
 		if (fork() == 0) {
 			while (true){
+				//std::cout << "REQUEST_MSG_STRT" << std::endl;
 				int message[4];
+				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Recv(message, 4, MPI_INT, leftnode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				if (message[3] == RELEASE_MSG) {
 					write(relpipe, (char*)message, sizeof(int) * 3);
 				}
 				else if (message[3] == REQUEST_MSG) {
+					//std::cout << "message[3] == REQUEST_MSG" << std::endl;
 					write(reqpipe, (char*)message, sizeof(int) * 3);
 				}
 				else if (message[3] == PRIORITY_MSG) {
@@ -92,7 +96,9 @@ PipeCtrl forkpipe(int leftnode, int rightnode)
 		else {
 			while (true) {
 				int message[1];//Tokens+id
+				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Recv(message, 1, MPI_INT, rightnode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				std::cout << "Tokens recieved" << std::endl;
 				write(tokpipe, (char*)message, sizeof(int));
 			}
 		}
