@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
 #include "Skier.h"
 #include "PipeCtrl.h"
 #include "main.h"
@@ -7,6 +10,7 @@
 
 int main(int argc, char **argv) {
 	int rank, size;
+	srand(time(NULL));
 
     MPI_Init(&argc, &argv);
 
@@ -17,10 +21,10 @@ int main(int argc, char **argv) {
     if(rank == 0){
 		tokens += LIFT_CAPACITY % size;
     }
-
-    Skier skier = Skier(rank, size, tokens);
+	int weight = LIFT_CAPACITY / 4;
+	weight = std::rand() % weight;
+    Skier skier = Skier(rank, size, tokens, weight);
     skier.PrintNodes();
-	getchar();
     skier.loop();
 
     MPI_Finalize();

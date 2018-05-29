@@ -3,23 +3,29 @@
 #include "PipeCtrl.h"
 #include <stdio.h>
 #include <iostream>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
 
 //#include "Constants.h"
 
-Skier::Skier(int rank, int size, int tokens)
+Skier::Skier(int rank, int size, int tokens, int w)
 {
+	timeout = std::clock();
+	isWorkingVar = false;
 	this->rank = rank;
 	priority = 0;
 	myTokens = tokens;
+	weight = w;
     //weight = rand()%(MAX_WEIGHT - MIN_WEIGHT) + MIN_WEIGHT;
 
 	// create ring network
-	if (rank == size) {
+	if (rank == size-1) {
 		leftNode = rank - 1;
 		rightNode = 0;
 	}
 	else if (rank == 0) {
-		leftNode = size;
+		leftNode = size-1;
 		rightNode = rank + 1;
 	}
 	else {
@@ -37,13 +43,22 @@ void Skier::loop()
 {
 	pipeCtrl = forkpipe(this->leftNode, this->rightNode);
 	std::cout << "Rank: " << this->rank << std::endl;
+	allRequests.insert(Request::make(priority, weight, rank));
+	newRequests.insert(Request::make(priority, weight, rank));
 	while (true) {
 
 		consumeTokens();
 		acceptSentRequests();
 		acceptSentReleases();
 		acceptSentTokens();
-		std::cout<<"One revolution completed"<<std::endl;
+		if (!isWorking() && isWorkingVar) {
+			isWorkingVar = false;
+			myTokens += this->weight;
+			std::cout << "Process ranked "<< rank <<"released "<< weight <<" tokens\n";
+			allRequests.insert(Request::make(priority, weight, rank));
+			newRequests.insert(Request::make(priority, weight, rank));
+		}
+		//std::cout<<"One revolution completed"<<std::endl;
 		/*
 		ImReadyController();
 		SendRequestController();
@@ -58,26 +73,31 @@ void Skier::loop()
 void Skier::startWorking()
 {
 	myTokens -= this->weight;
-	//Other things
-	//Start timer
+	std::cout << "Process ranked " << rank << " has taken " << weight << " tokens\n";
+	timeout = std::clock() +CLOCKS_PER_SEC * float(std::rand()%5) /10000;
+	isWorkingVar = true;
 }
 
 bool Skier::isWorking()
 {
-	return false;
+	//std::cout << timeout - std::clock()<<std::endl;
+	return std::clock() < timeout;
 }
 
 void Skier::consumeTokens()
 {
+	//std::cout << "consumeTokens" << std::endl;
 	if (allRequests.empty()) {
 		return;
 	}
 	Request current = allRequests.best();
 	Request me = Request::make(0, this->weight, this->rank);
 
+	std::cout << "make" << std::endl;
 	while (current.weight <= myTokens && !allRequests.empty()) {
 		allRequests.erase(current);
 
+		std::cout << "erase" << std::endl;
 		if (current == me) {
 			SendPriorityIncrement(this->rank);
 			startWorking();
@@ -96,8 +116,8 @@ void Skier::consumeTokens()
 		if (newRequests.contains(current)) {
 			newRequests.erase(current);
 		}
-
-		current = allRequests.best();
+		if(!allRequests.empty())
+			current = allRequests.best();
 	}
 	if (myTokens > 0 && !allRequests.empty() && !(current == me)) {
 		SendTokens(myTokens);
@@ -164,9 +184,7 @@ Request Skier::ReceiveRequest()
 	return pipeCtrl.readRequest();
 }
 void Skier::SendTokens(int tokens){
-	int message[1];
-	message[0] = tokens;
-	//MPI_Send( message, 1, MPI_INT, leftNode, 0, MPI_COMM_WORLD);
+	pipeCtrl.sendTokens(tokens, leftNode);
 }
 
 int Skier::ReceiveTokens()
@@ -196,6 +214,7 @@ int Skier::GetRank()
 void Skier::PrintNodes()
 {
 	printf("left: %d; node: %d; right: %d\n", leftNode, rank, rightNode);
+	printf("tokens: %d; weight: %d; \n", myTokens, weight);
 }
 
 

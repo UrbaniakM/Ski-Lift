@@ -1,5 +1,8 @@
 #pragma once
 #include <set>
+#include <iostream>
+#include <cstdio>
+#include <ctime>
 #include "MySortedList.h"
 #include "PipeCtrl.h"
 #include "Request.h"
@@ -8,7 +11,7 @@ class Skier
 {
 public:
 
-	Skier(int rank, int size, int tokens);
+	Skier(int rank, int size, int tokens, int weight);
 	~Skier();
 
 	void SendRequest(Request request);
@@ -32,12 +35,14 @@ private:
 	MySortedList sentRequests;
 	//Skier* leftNode;
 	//Skier* rightNode;
+	bool isWorkingVar;
 	int myTokens;
 	int leftNode;
 	int rightNode;
 	int priority;
 	int weight;
 	int rank;
+	std::clock_t timeout;
 	PipeCtrl pipeCtrl;
 
 
