@@ -14,17 +14,20 @@
 #include <mutex>
 #include <list>
 
-
 struct ThreadsCtrl {
 	ThreadsCtrl() {}
-    //std::thread receiveLeftThread;
-    //std::thread receiveRightThread;
 
     std::list<int> tokenList;
     std::list<Request> requestList;
     std::list<Request> releaseList;
     std::list<int> priorityList;
-    
+
+    // TODO: transform struct into class, declare this mutexes as global with 'extern' in header file
+
+    //std::mutex _mutexTokens;
+    //std::mutex mutexRequests;
+    //std::mutex mutexReleases;
+    //std::mutex mutexPriorities;
 
 	void sendTokens(int tokens, int node) {
 		int arr[1] = { tokens };
@@ -32,6 +35,7 @@ struct ThreadsCtrl {
 	}
 	int readTokens() {
 		std::cout << "Reciving_tokens_REEEAL" << std::endl;
+        //std::lock_guard<std::mutex> lock(mutexTokens);
 		if (tokenList.empty()) {
 			return -1;
 			std::cout << "Tokens fail" << std::endl;
