@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "Skier.h"
-#include "PipeCtrl.h"
+#include "ThreadsCtrl.h"
 #include "main.h"
 #include "mpi.h"
 

@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <ctime>
 #include "MySortedList.h"
-#include "PipeCtrl.h"
+#include "ThreadsCtrl.h"
 #include "Request.h"
 
 class Skier
@@ -41,7 +41,7 @@ private:
 	int weight;
 	int rank;
 	std::clock_t timeout;
-	PipeCtrl pipeCtrl;
+	ThreadsCtrl pipeCtrl;
 
 
 	void consumeTokens();

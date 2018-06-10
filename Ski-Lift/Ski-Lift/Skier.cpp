@@ -38,7 +38,7 @@ Skier::~Skier()
 
 void Skier::loop()
 {
-	pipeCtrl = forkpipe(this->leftNode, this->rightNode);
+	pipeCtrl = initializeThreads(this->leftNode, this->rightNode);
 	MPI_Barrier(MPI_COMM_WORLD);
 	sleep(1);
 	std::cout << "Rank: " << this->rank << std::endl;
