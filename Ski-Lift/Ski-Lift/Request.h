@@ -6,7 +6,7 @@ struct Request {
 	int id;
 	bool operator<(Request request);
 	bool operator==(Request request);
-	//Do sortowania ¿¹dañ
+	//Do sortowania rzadan
 	Request();
 	Request(int p, int w, int i);
 	static Request make();

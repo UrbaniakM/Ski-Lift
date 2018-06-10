@@ -33,8 +33,6 @@ private:
 	MySortedList allRequests;
 	MySortedList newRequests;
 	MySortedList sentRequests;
-	//Skier* leftNode;
-	//Skier* rightNode;
 	bool isWorkingVar;
 	int myTokens;
 	int leftNode;
@@ -51,13 +49,4 @@ private:
 	void acceptSentReleases();
 	void acceptSentTokens();
 	void acceptPriorityIncrement();
-	/*
-	void ImReadyController();
-	void ImDoneController();
-	void ReceivedRequestController();
-	void SendRequestController();
-	void ReceivedTokensController();
-	void RecievedReleaseController();
-	*/
-
 };

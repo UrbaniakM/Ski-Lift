@@ -1,4 +1,3 @@
-// C program to demonstrate use of fork() and pipe()
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
@@ -76,7 +75,6 @@ PipeCtrl forkpipe(int leftnode, int rightnode)
 		close(fd3[1]);
 		if (fork() == 0) {
 			while (true){
-				//std::cout << "REQUEST_MSG_STRT" << std::endl;
 				int message[4];
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Recv(message, 4, MPI_INT, leftnode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -84,7 +82,6 @@ PipeCtrl forkpipe(int leftnode, int rightnode)
 					write(relpipe, (char*)message, sizeof(int) * 3);
 				}
 				else if (message[3] == REQUEST_MSG) {
-					//std::cout << "message[3] == REQUEST_MSG" << std::endl;
 					write(reqpipe, (char*)message, sizeof(int) * 3);
 				}
 				else if (message[3] == PRIORITY_MSG) {
@@ -95,13 +92,12 @@ PipeCtrl forkpipe(int leftnode, int rightnode)
 		}
 		else {
 			while (true) {
-				int message[1];//Tokens+id
+				int message[1];
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Recv(message, 1, MPI_INT, rightnode, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				std::cout << "Tokens recieved" << std::endl;
 				write(tokpipe, (char*)message, sizeof(int));
 			}
-		}
-		//write(fd2[1], concat_str, strlen(concat_str) + 1);
+		};
 	}
 }

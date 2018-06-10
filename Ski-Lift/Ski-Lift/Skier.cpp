@@ -8,8 +8,6 @@
 #include <ctime>
 #include <unistd.h>
 
-//#include "Constants.h"
-
 Skier::Skier(int rank, int size, int tokens, int w)
 {
 	timeout = std::clock();
@@ -18,8 +16,6 @@ Skier::Skier(int rank, int size, int tokens, int w)
 	priority = 0;
 	myTokens = tokens;
 	weight = w;
-    //weight = rand()%(MAX_WEIGHT - MIN_WEIGHT) + MIN_WEIGHT;
-
 	// create ring network
 	if (rank == size-1) {
 		leftNode = rank - 1;
@@ -62,15 +58,6 @@ void Skier::loop()
 			allRequests.insert(Request::make(priority, weight, rank));
 			newRequests.insert(Request::make(priority, weight, rank));
 		}
-		//std::cout<<"One revolution completed"<<std::endl;
-		/*
-		ImReadyController();
-		SendRequestController();
-		ReceivedRequestController();
-		RecievedReleaseController();
-		ReceivedTokensController();
-		ImDoneController();
-		*/
 	}
 }
 
@@ -85,20 +72,17 @@ void Skier::startWorking()
 
 bool Skier::isWorking()
 {
-	//std::cout << timeout - std::clock()<<std::endl;
 	return std::clock() < timeout;
 }
 
 void Skier::consumeTokens()
 {
-	//std::cout << "consumeTokens" << std::endl;
 	if (allRequests.empty()) {
 		return;
 	}
 	Request current = allRequests.best();
 	Request me = Request::make(0, this->weight, this->rank);
 
-	//std::cout << "make" << std::endl;
 	while (current.weight <= myTokens && !allRequests.empty()) {
 		allRequests.erase(current);
 
@@ -139,7 +123,7 @@ void Skier::acceptSentRequests()
 		sentRequests.insert(request);
 	}
 
-	request = ReceiveRequest(); 
+	request = ReceiveRequest();
 	while (request.correct) {
 		allRequests.insert(request);
 		newRequests.insert(request);
@@ -225,32 +209,6 @@ void Skier::PrintNodes()
 	printf("tokens: %d; weight: %d; \n", myTokens, weight);
 }
 
-
-/*
-void Skier::ImReadyController()
-{
-}
-
-void Skier::ImDoneController()
-{
-}
-
-void Skier::ReceivedRequestController()
-{
-}
-
-void Skier::SendRequestController()
-{
-}
-
-void Skier::ReceivedTokensController()
-{
-}
-
-void Skier::RecievedReleaseController()
-{
-}
-*/
 
 bool Request::operator<(Request request)
 {
