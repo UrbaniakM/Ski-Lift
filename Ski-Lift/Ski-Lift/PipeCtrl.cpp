@@ -1,3 +1,4 @@
+/*
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
@@ -101,3 +102,4 @@ PipeCtrl forkpipe(int leftnode, int rightnode)
 		};
 	}
 }
+*/

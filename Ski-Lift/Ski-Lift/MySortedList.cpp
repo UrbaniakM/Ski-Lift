@@ -23,7 +23,7 @@ Request MySortedList::best()
 {
 	if (MyList.empty()) {
 		throw std::invalid_argument("MySortedList.best(): MySortedList.MyList is empty");
-		exit(-1);
+		//exit(-1);
 	}
 	return *max_element(MyList.begin(), MyList.end(), MyLess);
 }
@@ -97,6 +97,7 @@ int MySortedList::decrease(Request element)
 		MyList.erase(forErase);
 		forErase = MyList.end();
 	}
+	return element.weight;
 }
 
 bool MySortedList::empty()

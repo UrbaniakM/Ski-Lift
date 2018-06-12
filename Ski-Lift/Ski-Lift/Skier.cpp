@@ -31,25 +31,33 @@ Skier::Skier(int rank, int size, int tokens, int w)
 	}
 }
 
-
-Skier::~Skier()
-{
-}
-
 void Skier::loop()
 {
+	std::cout << this->rank << ": ____" << std::endl;
 	pipeCtrl = initializeThreads(this->leftNode, this->rightNode);
-	MPI_Barrier(MPI_COMM_WORLD);
+	std::cout << this->rank << ": pipeCtrl" << std::endl;
+	//MPI_Barrier(MPI_COMM_WORLD);
+	std::cout << this->rank << ": MPI_Barrier" << std::endl;
 	sleep(1);
+	std::cout << this->rank << ": sleep" << std::endl;
+	pipeCtrl->startLeftMutex->unlock();
+	pipeCtrl->startRightMutex->unlock();
+	std::cout << this->rank << ": startRightMutex, startLeftMutex" << std::endl;
 	std::cout << "Rank: " << this->rank << std::endl;
 	allRequests.insert(Request::make(priority, weight, rank));
+	std::cout << this->rank << ": allRequests" << std::endl;
 	newRequests.insert(Request::make(priority, weight, rank));
+	std::cout << this->rank << ": newRequests" << std::endl;
 	while (true) {
-
+		std::cout << this->rank << ": ____"<<std::endl;
 		consumeTokens();
+		std::cout << this->rank << ": consumeTokens" << std::endl;
 		acceptSentRequests();
+		std::cout << this->rank << ": acceptSentRequests" << std::endl;
 		acceptSentReleases();
+		std::cout << this->rank << ": acceptSentReleases" << std::endl;
 		acceptSentTokens();
+		std::cout << this->rank << ": acceptSentTokens" << std::endl;
 		if (!isWorking() && isWorkingVar) {
 			isWorkingVar = false;
 			myTokens += this->weight;
@@ -58,6 +66,7 @@ void Skier::loop()
 			allRequests.insert(Request::make(priority, weight, rank));
 			newRequests.insert(Request::make(priority, weight, rank));
 		}
+		std::cout << this->rank << ": isWorking" << std::endl;
 	}
 }
 
@@ -168,36 +177,36 @@ void Skier::acceptPriorityIncrement()
 void Skier::SendRequest(Request request)
 {
 	std::cout << "SendRequest" << std::endl;
-	pipeCtrl.sendRequest(request.priority, request.weight, request.id, rightNode);
+	pipeCtrl->sendRequest(request.priority, request.weight, request.id, rightNode);
 }
 
 Request Skier::ReceiveRequest()
 {
-	return pipeCtrl.readRequest();
+	return pipeCtrl->readRequest();
 }
 void Skier::SendTokens(int tokens){
-	pipeCtrl.sendTokens(tokens, leftNode);
+	pipeCtrl->sendTokens(tokens, leftNode);
 }
 
 int Skier::ReceiveTokens()
 {
-	return pipeCtrl.readTokens();
+	return pipeCtrl->readTokens();
 }
 void Skier::SendRelease(Request request){
-	pipeCtrl.sendRelease(request.priority, request.weight, request.id, rightNode);
+	pipeCtrl->sendRelease(request.priority, request.weight, request.id, rightNode);
 }
 
 Request Skier::ReceiveRelease()
 {
-	return pipeCtrl.readRelease();
+	return pipeCtrl->readRelease();
 }
 void Skier::SendPriorityIncrement(int id)
 {
-	pipeCtrl.sendPriorityIncrement(id, rightNode);
+	pipeCtrl->sendPriorityIncrement(id, rightNode);
 }
 int Skier::ReceivePriorityIncrement()
 {
-	return pipeCtrl.readPriorityIncrement();
+	return pipeCtrl->readPriorityIncrement();
 }
 int Skier::GetRank()
 {

@@ -12,7 +12,7 @@
 #include "PipeCtrl.h"
 #include "Request.h"
 
-
+/*
 
 struct PipeCtrl {
 	PipeCtrl() {}
@@ -103,3 +103,4 @@ struct PipeCtrl {
 
 
 PipeCtrl forkpipe(int leftnode, int rightnode);
+*/

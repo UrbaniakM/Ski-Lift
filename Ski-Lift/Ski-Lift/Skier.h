@@ -12,7 +12,11 @@ class Skier
 public:
 
 	Skier(int rank, int size, int tokens, int weight);
-	~Skier();
+	~Skier() {
+		if (pipeCtrl != NULL) {
+			delete pipeCtrl;
+		}
+	}
 
 	void SendRequest(Request request);
 	Request ReceiveRequest();
@@ -41,7 +45,7 @@ private:
 	int weight;
 	int rank;
 	std::clock_t timeout;
-	ThreadsCtrl pipeCtrl;
+	ThreadsCtrl*pipeCtrl;
 
 
 	void consumeTokens();

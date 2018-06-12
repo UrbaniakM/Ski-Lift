@@ -15,7 +15,16 @@
 #include <list>
 
 struct ThreadsCtrl {
-	ThreadsCtrl() {}
+	ThreadsCtrl() {
+		omniMutex = new std::mutex();
+		startRightMutex = new std::mutex();
+		startLeftMutex = new std::mutex();
+	}
+	~ThreadsCtrl() {
+		delete omniMutex;
+		delete startRightMutex;
+		delete startLeftMutex;
+	}
 
     std::list<int> tokenList;
     std::list<Request> requestList;
@@ -28,6 +37,9 @@ struct ThreadsCtrl {
     //std::mutex mutexRequests;
     //std::mutex mutexReleases;
     //std::mutex mutexPriorities;
+	std::mutex*omniMutex;
+	std::mutex*startRightMutex;
+	std::mutex*startLeftMutex;
 
 	void sendTokens(int tokens, int node) {
 		int arr[1] = { tokens };
@@ -36,12 +48,15 @@ struct ThreadsCtrl {
 	int readTokens() {
 		std::cout << "Reciving_tokens_REEEAL" << std::endl;
         //std::lock_guard<std::mutex> lock(mutexTokens);
+		omniMutex->lock();
 		if (tokenList.empty()) {
+			omniMutex->unlock();
 			return -1;
 			std::cout << "Tokens fail" << std::endl;
 		}
         int token = tokenList.front();
         tokenList.pop_front();
+		omniMutex->unlock();
         return token;
 		std::cout << "Tokens succes" << std::endl;
 	}
@@ -51,12 +66,14 @@ struct ThreadsCtrl {
 	}
 	Request readRequest() {
         Request r;
+		omniMutex->lock();
 		if(!requestList.empty()){
             r = requestList.front();
             requestList.pop_front();
         } else {
 			r.correct = false;
 		}
+		omniMutex->unlock();
 		return r;
 	}
 	void sendRelease(int priority, int weight, int id, int node) {
@@ -65,6 +82,7 @@ struct ThreadsCtrl {
 	}
 	Request readRelease() {
 		Request r;
+		omniMutex->lock();
 		if(!releaseList.empty()){
             r = releaseList.front();
             releaseList.pop_front();
@@ -72,6 +90,7 @@ struct ThreadsCtrl {
 		else {
 			r.correct = false;
 		}
+		omniMutex->unlock();
 		return r;
 	}
 	void sendPriorityIncrement(int id, int node) {
@@ -79,14 +98,17 @@ struct ThreadsCtrl {
 		MPI_Send(arr, 4, MPI_INT, node, 0, MPI_COMM_WORLD);
 	}
 	int readPriorityIncrement() {
+		omniMutex->lock();
 		if (priorityList.empty()) {
+			omniMutex->unlock();
 			return -1;
 		}
         int priority = priorityList.front();
         priorityList.pop_front();
+		omniMutex->unlock();
 		return priority;
 	}
 };
 
 
-ThreadsCtrl initializeThreads(int leftnode, int rightnode);
+ThreadsCtrl*initializeThreads(int leftnode, int rightnode);
