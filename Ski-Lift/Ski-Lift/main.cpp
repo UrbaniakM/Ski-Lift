@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <ctime>
 #include "Skier.h"
-#include "ThreadsCtrl.h"
 #include "main.h"
 #include "mpi.h"
 

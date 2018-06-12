@@ -4,8 +4,10 @@
 #include <cstdio>
 #include <ctime>
 #include "MySortedList.h"
-#include "ThreadsCtrl.h"
+//#include "ThreadsCtrl.h"
 #include "Request.h"
+#include "main.h"
+#include "mpi.h"
 
 class Skier
 {
@@ -13,9 +15,9 @@ public:
 
 	Skier(int rank, int size, int tokens, int weight);
 	~Skier() {
-		if (pipeCtrl != NULL) {
+		/*if (pipeCtrl != NULL) {
 			delete pipeCtrl;
-		}
+		}*/
 	}
 
 	void SendRequest(Request request);
@@ -44,8 +46,22 @@ private:
 	int priority;
 	int weight;
 	int rank;
+    
+    bool triedReceiveLeftRequest;
+    bool triedReceiveLeftRelease;
+    bool triedReceiveLeftPriority;
+    bool triedReceiveRightTokens;
+    MPI_Request leftReceiveRequest;
+    MPI_Request leftReceiveRelease;
+    MPI_Request leftReceivePriority;
+    MPI_Request rightReceiveTokens;
+    int leftBufferRequest[3];
+    int leftBufferRelease[3];
+    int leftBufferPriority[1];
+    int rightBufferTokens[1];
+
 	std::clock_t timeout;
-	ThreadsCtrl*pipeCtrl;
+	//ThreadsCtrl*pipeCtrl;
 
 
 	void consumeTokens();
