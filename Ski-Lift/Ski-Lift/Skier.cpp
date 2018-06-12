@@ -21,7 +21,7 @@ Skier::Skier(int rank, int size, int tokens, int w)
 	priority = 0;
 	myTokens = tokens;
 	weight = w;
-	// create ring network
+	// Create ring network
 	if (rank == size-1) {
 		leftNode = rank - 1;
 		rightNode = 0;
@@ -101,7 +101,7 @@ void Skier::consumeTokens()
 		if (current == me) {
 			SendPriorityIncrement(this->rank);
 			startWorking();
-				//Decreases myTokens
+				// Decreases myTokens (number of hold tokens)
 		}
 		else {
 			myTokens-= current.weight;
@@ -175,6 +175,16 @@ void Skier::acceptPriorityIncrement()
 	}
 }
 
+
+///
+/// Sends Request (3 ints - priority, weight and id) to the Right Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: REQUEST_TAG
+/// Node: rightNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
 void Skier::SendRequest(Request request)
 {
 	std::cout << "SendRequest" << std::endl;
@@ -182,6 +192,15 @@ void Skier::SendRequest(Request request)
 	MPI_Send(arr, 3, MPI_INT, rightNode, REQUEST_TAG, MPI_COMM_WORLD);
 }
 
+///
+/// Receives Request (3 ints - priority, weight and id) from Left Node if encounters in buffer, otherwise request is marked as incorrect. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: REQUEST_TAG
+/// Node: leftNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
 Request Skier::ReceiveRequest()
 {
     Request r;
@@ -205,11 +224,31 @@ Request Skier::ReceiveRequest()
     }
 	return r;
 }
+
+///
+/// Sends Tokens (1 int) to the Left Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: TOKENS_TAG
+/// Node: leftNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
 void Skier::SendTokens(int tokens){
     int arr[1] = { tokens };
     MPI_Send(arr, 1, MPI_INT, leftNode, TOKENS_TAG, MPI_COMM_WORLD);
 }
 
+
+///
+/// Receives Tokens (1 int) from Right Node if encounters in buffer, otherwise returns -1. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: TOKENS_TAG
+/// Node: rightNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
 int Skier::ReceiveTokens()
 {
     int tokens = -1;
@@ -228,11 +267,30 @@ int Skier::ReceiveTokens()
     }
     return tokens;
 }
+
+///
+/// Sends Release-Request (3 ints - priority, weight and id) to the Right Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: RELEASE_TAG
+/// Node: rightNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
 void Skier::SendRelease(Request request){
     int arr[3] = { request.priority, request.weight, request.id};
 	MPI_Send(arr, 3, MPI_INT, rightNode, RELEASE_TAG, MPI_COMM_WORLD);
 }
 
+///
+/// Receives Release-Request (3 ints - priority, weight and id) from Left Node if encounters in buffer, otherwise release-request is marked as incorrect. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: RELEASE_TAG
+/// Node: leftNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
 Request Skier::ReceiveRelease()
 {
     Request r;
@@ -256,11 +314,31 @@ Request Skier::ReceiveRelease()
     }
 	return r;
 }
+
+///
+/// Send Priority Increment by Id (1 int) to the Right Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: PRIORITY_TAG
+/// Node: leftNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
 void Skier::SendPriorityIncrement(int id)
 {
     int arr[1] = { id };
 	MPI_Send(arr, 1, MPI_INT, rightNode, PRIORITY_TAG, MPI_COMM_WORLD);
 }
+
+///
+/// Receives Priority Increment by Id (1 int) from Left Node if encounters in buffer, otherwise returns -1. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: PRIORITY_TAG
+/// Node: rightNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
 int Skier::ReceivePriorityIncrement()
 {
     int id = -1;

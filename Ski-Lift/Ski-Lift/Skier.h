@@ -14,11 +14,7 @@ class Skier
 public:
 
 	Skier(int rank, int size, int tokens, int weight);
-	~Skier() {
-		/*if (pipeCtrl != NULL) {
-			delete pipeCtrl;
-		}*/
-	}
+	~Skier() { }
 
 	void SendRequest(Request request);
 	Request ReceiveRequest();
@@ -61,8 +57,6 @@ private:
     int rightBufferTokens[1];
 
 	std::clock_t timeout;
-	//ThreadsCtrl*pipeCtrl;
-
 
 	void consumeTokens();
 	void acceptSentRequests();
