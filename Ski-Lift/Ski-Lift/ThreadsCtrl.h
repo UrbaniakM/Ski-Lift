@@ -11,14 +11,32 @@
 #include "ThreadsCtrl.h"
 #include "Request.h"
 #include <thread>
+#include <pthread.h>
 #include <mutex>
 #include <list>
 
+class MyMutex {
+	pthread_mutex_t  mutex;
+public:
+	MyMutex() {
+		pthread_mutex_init(mutex, NULL);
+	}
+	~MyMutex() {
+		pthread_mutex_destroy(mutex);
+	}
+	void lock() {
+		pthread_mutex_lock(mutex);
+	}
+	void unlock() {
+		pthread_mutex_unlock(mutex);
+	}
+};
+
 struct ThreadsCtrl {
 	ThreadsCtrl() {
-		omniMutex = new std::mutex();
-		startRightMutex = new std::mutex();
-		startLeftMutex = new std::mutex();
+		omniMutex = new MyMutex();
+		startRightMutex = new MyMutex();
+		startLeftMutex = new MyMutex();
 	}
 	~ThreadsCtrl() {
 		delete omniMutex;
@@ -33,13 +51,13 @@ struct ThreadsCtrl {
 
     // TODO: transform struct into class, declare this mutexes as global with 'extern' in header file
 
-    //std::mutex _mutexTokens;
-    //std::mutex mutexRequests;
-    //std::mutex mutexReleases;
-    //std::mutex mutexPriorities;
-	std::mutex*omniMutex;
-	std::mutex*startRightMutex;
-	std::mutex*startLeftMutex;
+    //MyMutex _mutexTokens;
+    //MyMutex mutexRequests;
+    //MyMutex mutexReleases;
+    //MyMutex mutexPriorities;
+	MyMutex*omniMutex;
+	MyMutex*startRightMutex;
+	MyMutex*startLeftMutex;
 
 	void sendTokens(int tokens, int node) {
 		int arr[1] = { tokens };
@@ -47,7 +65,7 @@ struct ThreadsCtrl {
 	}
 	int readTokens() {
 		std::cout << "Reciving_tokens_REEEAL" << std::endl;
-        //std::lock_guard<std::mutex> lock(mutexTokens);
+        //std::lock_guard<MyMutex> lock(mutexTokens);
 		omniMutex->lock();
 		if (tokenList.empty()) {
 			omniMutex->unlock();

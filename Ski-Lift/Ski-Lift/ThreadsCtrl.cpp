@@ -10,10 +10,30 @@
 #include "Request.h"
 #include "ThreadsCtrl.h"
 #include <thread>
+#include <pthread.h>
 #include <mutex>
 #include <list>
 
-void receiveLeft(int node, std::mutex*omniMutex, std::mutex*myStartMutex, std::list<Request>& requestList, std::list<Request>& releaseList, std::list<int>& priorityList){
+struct receiveLeftAttr {
+	int node;
+	MyMutex*omniMutex;
+	MyMutex*myStartMutex;
+	std::list<Request>& requestList;
+	std::list<Request>& releaseList;
+	std::list<int>& priorityList;
+	receiveLeft(int node, MyMutex*omniMutex, MyMutex*myStartMutex, std::list<Request>& requestList, std::list<Request>& releaseList, std::list<int>& priorityList) {
+		this->node = node;
+		this->omniMutex = omniMutex;
+		this->myStartMutex = myStartMutex;
+		this->requestList = requestList;
+		this->releaseList = releaseList;
+		this->priorityList = priorityList;
+
+	}
+};
+
+
+void receiveLeft(int node, MyMutex*omniMutex, MyMutex*myStartMutex, std::list<Request>& requestList, std::list<Request>& releaseList, std::list<int>& priorityList){
 	myStartMutex->lock();
     while (true){
 		int message[4];
@@ -40,7 +60,7 @@ void receiveLeft(int node, std::mutex*omniMutex, std::mutex*myStartMutex, std::l
 	}
 }
 
-void receiveRight(int node, std::mutex*omniMutex, std::mutex*myStartMutex, std::list<int>& tokenList){
+void receiveRight(int node, MyMutex*omniMutex, MyMutex*myStartMutex, std::list<int>& tokenList){
 	myStartMutex->lock();
 	while (true) {
 		int message[1];
