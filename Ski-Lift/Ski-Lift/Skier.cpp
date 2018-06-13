@@ -76,7 +76,7 @@ void Skier::startWorking()
 	myTokens -= this->weight;
 	std::cout << "Process ranked " << rank << " has taken " << weight << " tokens, and has "
 		<< myTokens << " tokens\n";
-	timeout = std::clock() + CLOCKS_PER_SEC * float(std::rand() % 5);
+	timeout = 10*std::clock() + CLOCKS_PER_SEC * float(1+std::rand() % 5);
 	isWorkingVar = true;
 }
 
@@ -296,7 +296,7 @@ Request Skier::ReceiveRelease()
     Request r;
     if(triedReceiveLeftRelease){
         int flag;
-        MPI_Request_get_status(leftReceiveRequest,&flag, MPI_STATUS_IGNORE);
+        MPI_Request_get_status(leftReceiveRelease,&flag, MPI_STATUS_IGNORE);
         if(flag){
             r.priority = leftBufferRelease[0];
             r.weight = leftBufferRelease[1];
@@ -344,7 +344,7 @@ int Skier::ReceivePriorityIncrement()
     int id = -1;
     if(triedReceiveLeftPriority){
         int flag;
-        MPI_Request_get_status(rightReceiveTokens,&flag, MPI_STATUS_IGNORE);
+        MPI_Request_get_status(leftReceivePriority,&flag, MPI_STATUS_IGNORE);
         if(flag){
             id = leftBufferPriority[0];
             triedReceiveLeftPriority = false;

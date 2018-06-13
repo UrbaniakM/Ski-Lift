@@ -43,10 +43,10 @@ private:
 	int weight;
 	int rank;
     
-    bool triedReceiveLeftRequest;
-    bool triedReceiveLeftRelease;
-    bool triedReceiveLeftPriority;
-    bool triedReceiveRightTokens;
+    bool triedReceiveLeftRequest = false;
+    bool triedReceiveLeftRelease = false;
+    bool triedReceiveLeftPriority = false;
+    bool triedReceiveRightTokens = false;
     MPI_Request leftReceiveRequest;
     MPI_Request leftReceiveRelease;
     MPI_Request leftReceivePriority;
