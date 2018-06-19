@@ -50,15 +50,15 @@ void Skier::loop()
 	newRequests.insert(Request::make(priority, weight, rank));
 	std::cout << this->rank << ": newRequests" << std::endl;
 	while (true) {
-		std::cout << this->rank << ": ____"<<std::endl;
+		//std::cout << this->rank << ": ____"<<std::endl;
 		consumeTokens();
-		std::cout << this->rank << ": consumeTokens" << std::endl;
+		//std::cout << this->rank << ": consumeTokens" << std::endl;
 		acceptSentRequests();
-		std::cout << this->rank << ": acceptSentRequests" << std::endl;
+		//std::cout << this->rank << ": acceptSentRequests" << std::endl;
 		acceptSentReleases();
-		std::cout << this->rank << ": acceptSentReleases" << std::endl;
+		//std::cout << this->rank << ": acceptSentReleases" << std::endl;
 		acceptSentTokens();
-		std::cout << this->rank << ": acceptSentTokens" << std::endl;
+		//std::cout << this->rank << ": acceptSentTokens" << std::endl;
 		if (!isWorking() && isWorkingVar) {
 			isWorkingVar = false;
 			myTokens += this->weight;
@@ -76,7 +76,11 @@ void Skier::startWorking()
 	myTokens -= this->weight;
 	std::cout << "Process ranked " << rank << " has taken " << weight << " tokens, and has "
 		<< myTokens << " tokens\n";
+<<<<<<< HEAD
 	timeout = 10*std::clock() + CLOCKS_PER_SEC * float(1+std::rand() % 5);
+=======
+	timeout = std::clock() + CLOCKS_PER_SEC * float(1 + std::rand() % 5);
+>>>>>>> 3d79a40574869495ad755ddaafee1f1fcc8a3b2f
 	isWorkingVar = true;
 }
 
@@ -294,6 +298,7 @@ void Skier::SendRelease(Request request){
 Request Skier::ReceiveRelease()
 {
     Request r;
+    r.correct = false;
     if(triedReceiveLeftRelease){
         int flag;
         MPI_Request_get_status(leftReceiveRelease,&flag, MPI_STATUS_IGNORE);
@@ -303,14 +308,11 @@ Request Skier::ReceiveRelease()
             r.id = leftBufferRelease[2];
             r.correct = true;
             triedReceiveLeftRelease = false;
-        } else {
-            r.correct = false;
         }
     }
     else {
         MPI_Irecv(leftBufferRelease, 3, MPI_INT, leftNode, RELEASE_TAG, MPI_COMM_WORLD, &leftReceiveRelease);
         triedReceiveLeftRelease = true;
-        r.correct = false;
     }
 	return r;
 }
