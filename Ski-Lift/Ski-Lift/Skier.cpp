@@ -128,6 +128,7 @@ void Skier::consumeTokens()
 	}
 	if (myTokens > 0 && !allRequests.empty() && !(current == me)) {
 		SendTokens(myTokens);
+		myTokens = 0;
 	}
 }
 
@@ -172,6 +173,8 @@ void Skier::acceptSentTokens()
 	int newTokens = ReceiveTokens();
 	while (newTokens != -1)
 	{
+		std::cout << this->rank << "::acceptSentTokens;myTokens=" << myTokens;
+		std::cout << this->rank << ";newTokens=" << myTokens<<";isWorking="<<isWorking()<<std::endl;
 		myTokens += newTokens;
 		newTokens = ReceiveTokens();
 	}
