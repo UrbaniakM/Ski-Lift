@@ -163,6 +163,7 @@ void Skier::acceptSentReleases()
 		release.weight -= rest;
 		allRequests.decrease(release);
 		myTokens += rest;
+		release = ReceiveRelease();
 	}
 }
 
