@@ -44,11 +44,11 @@ void Skier::loop()
 	sleep(1);
 	std::cout << this->rank << ": sleep" << std::endl;
 	std::cout << this->rank << ": startRightMutex, startLeftMutex" << std::endl;
-	std::cout << "Rank: " << this->rank << std::endl;
+	//std::cout << "Rank: " << this->rank << std::endl;
 	allRequests.insert(Request::make(priority, weight, rank));
-	std::cout << this->rank << ": allRequests" << std::endl;
+	//std::cout << this->rank << ": allRequests" << std::endl;
 	newRequests.insert(Request::make(priority, weight, rank));
-	std::cout << this->rank << ": newRequests" << std::endl;
+	//std::cout << this->rank << ": newRequests" << std::endl;
 	std::clock_t deltaClock = std::clock();
 	while (true) {
 		//std::cout << this->rank << ": ____"<<std::endl;
@@ -74,7 +74,7 @@ void Skier::loop()
 			deltaClock = std::clock();
 		}
 		//std::cout << this->rank << ": isWorking" << std::endl;
-		sleep(0.1);
+		//sleep(0.1);
 	}
 }
 
@@ -174,7 +174,7 @@ void Skier::acceptSentTokens()
 	while (newTokens != -1)
 	{
 		std::cout << this->rank << "::acceptSentTokens;myTokens=" << myTokens;
-		std::cout << this->rank << ";newTokens=" << myTokens<<";isWorking="<<isWorking()<<std::endl;
+		std::cout << ";newTokens=" << myTokens<<";isWorking="<<isWorking()<<std::endl;
 		myTokens += newTokens;
 		newTokens = ReceiveTokens();
 	}
@@ -235,8 +235,7 @@ Request Skier::ReceiveRequest()
             r.id = leftBufferRequest[2];
             r.correct = true;
             triedReceiveLeftRequest = false;
-			std::cout << "R" << std::endl;
-			std::cout << "R" << std::endl;
+			std::cout << this->rank << "--R:= -" << r.weight << std::endl;
         } else {
             r.correct = false;
         }
@@ -284,7 +283,7 @@ int Skier::ReceiveTokens()
         if(flag){
             tokens = rightBufferTokens[0];
             triedReceiveRightTokens = false;
-			std::cout << "R" << std::endl;
+			std::cout << this->rank << "--R:= +" << tokens << std::endl;
         }
     }
     else {
@@ -333,7 +332,7 @@ Request Skier::ReceiveRelease()
             r.id = leftBufferRelease[2];
             r.correct = true;
             triedReceiveLeftRelease = false;
-			std::cout << "R" << std::endl;
+			std::cout << this->rank << "--R:= +" << r.weight << std::endl;
         }
     }
     else {
@@ -378,7 +377,7 @@ int Skier::ReceivePriorityIncrement()
         if(flag){
             id = leftBufferPriority[0];
             triedReceiveLeftPriority = false;
-			std::cout << "R" << std::endl;
+			std::cout << this->rank << "--R:= PRIO" << std::endl;
         }
     }
     else {
