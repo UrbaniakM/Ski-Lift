@@ -71,7 +71,7 @@ void Skier::loop()
 			//std::cout << "loop()::newRequests.size() :" << newRequests.size() << std::endl;
 		}
 
-		acceptPriorityIncrement();
+		//acceptPriorityIncrement();
 
 		if (std::clock() - deltaClock > CLOCKS_PER_SEC / 3.0) {
 			deltaClock = std::clock();
@@ -170,6 +170,10 @@ void Skier::acceptSentReleases()
 		release.weight -= rest;
 		this->allRequests.decrease(release);
 		//myTokens += rest;
+		release.weight = rest;
+		if (rest > 0) {
+			SendRelease(release);
+		}
 		release = ReceiveRelease();
 	}
 }
@@ -182,20 +186,21 @@ void Skier::acceptSentTokens()
 		//std::cout << this->rank << "::acceptSentTokens;myTokens=" << myTokens;
 		//std::cout << ";newTokens=" << myTokens<<";isWorking="<<isWorking()<<std::endl;
 		myTokens += newTokens;
+		//std::cout << "Process [" << rank << "] recieved " << newTokens << " tokens\n";
 		newTokens = ReceiveTokens();
 	}
 }
 
 void Skier::acceptPriorityIncrement()
 {
-	std::cout << "Debug 000" << std::endl;
+	//std::cout << this->rank << "Debug 000" << std::endl;
 	int pi_id = ReceivePriorityIncrement();
-	std::cout << "Debug 001" << std::endl;
+	//std::cout << this->rank << "Debug 001, id="<< pi_id << std::endl;
 	while (pi_id != -1) {
-		std::cout << "Debug 002" << std::endl;
-		std::cout << "R(" << this->rank << ")::<<" << pi_id << std::endl;
+		//std::cout << this->rank << "Debug 002" << std::endl;
+		//std::cout << this->rank << "R(" << this->rank << ")::<<" << pi_id << std::endl;
 		if (pi_id != this->rank) {
-			std::cout << "Debug 003" << std::endl;
+			//std::cout << this->rank << "Debug 003" << std::endl;
 			SendPriorityIncrement(pi_id);
 			this->allRequests.increasePriorityExcept(pi_id);
 			this->newRequests.increasePriorityExcept(pi_id);
@@ -203,6 +208,7 @@ void Skier::acceptPriorityIncrement()
 		}
 		pi_id = ReceivePriorityIncrement();
 	}
+	//std::cout << this->rank << "Debug 004" << std::endl;
 }
 
 
@@ -219,6 +225,8 @@ void Skier::SendRequest(Request request)
 {
 	//std::cout << this->rank << "-" << "SendRequest" << "-" << request.priority ;
 	//std::cout << "-" << request.weight << "-" << request.id << std::endl;
+	std::cout << "Process [" << rank << "] requested " << request.weight;
+	std::cout<< " tokens on behalf of ["<< request.id<<"]\n";
     int arr[3] = { request.priority, request.weight, request.id};
 	MPI_Send(arr, 3, MPI_INT, rightNode, REQUEST_TAG, MPI_COMM_WORLD);
 	//std::cout << "S" << std::endl;
@@ -366,7 +374,7 @@ void Skier::SendPriorityIncrement(int id)
 {
     int arr[1] = { id };
 	MPI_Send(arr, 1, MPI_INT, rightNode, PRIORITY_TAG, MPI_COMM_WORLD);
-	std::cout << "S(" << this->rank << ")::<<" << id << std::endl;
+	//std::cout << "S(" << this->rank << ")::<<" << id << std::endl;
 	//delete arr;
 }
 
@@ -381,6 +389,7 @@ void Skier::SendPriorityIncrement(int id)
 ///
 int Skier::ReceivePriorityIncrement()
 {
+	//std::cout << this->rank << "ReceivePriorityIncrement" << std::endl;
     int id = -1;
     if(triedReceiveLeftPriority){
         int flag;
@@ -388,11 +397,12 @@ int Skier::ReceivePriorityIncrement()
         if(flag){
             id = leftBufferPriority[0];
             triedReceiveLeftPriority = false;
-			std::cout << this->rank << "--R:= PRIO" << std::endl;
+			//std::cout << this->rank << "--R:= PRIO" << std::endl;
         }
+		//std::cout << this->rank << "--R:= PRIO::EMPTY" << std::endl;
     }
     else {
-		std::cout << "triedReceiveLeftPriority" << std::endl;
+		//std::cout << this->rank << "triedReceiveLeftPriority" << std::endl;
         MPI_Irecv(leftBufferPriority, 1, MPI_INT, leftNode, PRIORITY_TAG, MPI_COMM_WORLD, &leftReceivePriority);
         triedReceiveLeftPriority = true;
     }

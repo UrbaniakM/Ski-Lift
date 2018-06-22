@@ -20,9 +20,9 @@ int main(int argc, char **argv) {
 
 	int tokens = LIFT_CAPACITY / size;
     if(rank == 0){
-		tokens += LIFT_CAPACITY % size;
+		tokens += LIFT_CAPACITY % size -2;
     }
-	int weight = LIFT_CAPACITY / size + 1;
+	int weight = LIFT_CAPACITY / size ;
     Skier skier = Skier(rank, size, tokens, weight);
     skier.PrintNodes();
     skier.loop();
