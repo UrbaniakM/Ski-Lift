@@ -1,0 +1,230 @@
+#include "MPIManager.h"
+
+MPIManager::MPIManager(){
+    triedReceiveLeftRequest = false;
+    triedReceiveLeftRelease = false;
+    triedReceiveLeftPriority = false;
+    triedReceiveRightTokens = false;
+    triedReceiveLeftCancelRequest = false;
+}
+
+///
+/// Sends Request (3 ints - priority, weight and id) to the Right Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: REQUEST_TAG
+/// Node: rightNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
+void MPIManager::SendRequest(Request request)
+{
+    int arr[3] = { request.priority, request.weight, request.id};
+	MPI_Send(arr, 3, MPI_INT, rightNode, REQUEST_TAG, MPI_COMM_WORLD);
+}
+
+///
+/// Sends Release-Request (3 ints - priority, weight and id) to the Right Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: RELEASE_TAG
+/// Node: rightNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
+void MPIManager::SendRelease(Request request){
+    int arr[3] = { request.priority, request.weight, request.id};
+	MPI_Send(arr, 3, MPI_INT, rightNode, RELEASE_TAG, MPI_COMM_WORLD);
+}
+
+///
+/// Send Priority Increment (Value to Add to Priority and Id - 2 ints) to the Right Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: PRIORITY_TAG
+/// Node: leftNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
+void MPIManager::SendPriorityIncrement(PriorityIncrement priorityIncrement)
+{
+    int arr[2] = { priorityIncrement.newPriority, priorityIncrement.id };
+	MPI_Send(arr, 2, MPI_INT, rightNode, PRIORITY_TAG, MPI_COMM_WORLD);
+}
+
+///
+/// Sends Tokens (1 int) to the Left Node.
+/// MPI Communication
+/// Type: Send
+/// Message tag: TOKENS_TAG
+/// Node: leftNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
+void MPIManager::SendTokens(int tokens){
+    int arr[1] = { tokens };
+    MPI_Send(arr, 1, MPI_INT, leftNode, TOKENS_TAG, MPI_COMM_WORLD);
+}
+
+///
+/// Sends Id (1 int) of the Node to the Right Node to inform about cancellation of its request.
+/// MPI Communication
+/// Type: Send
+/// Message tag: CANCEL_REQUEST
+/// Node: rightNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
+void MPIManager::SendCancelRequest(int id){
+    int arr[1] = { id };
+    MPI_Send(arr, 1, MPI_INT, rightNode, CANCEL_REQUEST, MPI_COMM_WORLD);
+}
+
+///
+/// Receives Request (3 ints - priority, weight and id) from Left Node if encounters in buffer, otherwise request is marked as incorrect. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: REQUEST_TAG
+/// Node: leftNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
+Request MPIManager::ReceiveRequest()
+{
+    Request r;
+    r.correct = false;
+    if(triedReceiveLeftRequest){
+        int flag;
+        MPI_Request_get_status(leftReceiveRequest,&flag, MPI_STATUS_IGNORE);
+        if(flag){
+            r.priority = leftBufferRequest[0];
+            r.weight = leftBufferRequest[1];
+            r.id = leftBufferRequest[2];
+            r.correct = true;
+            triedReceiveLeftRequest = false;
+        }
+    }
+    else {
+        MPI_Irecv(leftBufferRequest, 3, MPI_INT, leftNode, REQUEST_TAG, MPI_COMM_WORLD, &leftReceiveRequest);
+        triedReceiveLeftRequest = true;
+    }
+	return r;
+}
+
+///
+/// Receives Release-Request (3 ints - priority, weight and id) from Left Node if encounters in buffer, otherwise release-request is marked as incorrect. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: RELEASE_TAG
+/// Node: leftNode
+/// Buffer size: 3
+/// Buffer datatype: MPI_INT
+///
+Request MPIManager::ReceiveRelease()
+{
+    Request r;
+    r.correct = false;
+    if(triedReceiveLeftRelease){
+        int flag;
+        MPI_Request_get_status(leftReceiveRelease,&flag, MPI_STATUS_IGNORE);
+        if(flag){
+            r.priority = leftBufferRelease[0];
+            r.weight = leftBufferRelease[1];
+            r.id = leftBufferRelease[2];
+            r.correct = true;
+            triedReceiveLeftRelease = false;
+        }
+    }
+    else {
+        MPI_Irecv(leftBufferRelease, 3, MPI_INT, leftNode, RELEASE_TAG, MPI_COMM_WORLD, &leftReceiveRelease);
+        triedReceiveLeftRelease = true;
+    }
+	return r;
+}
+
+///
+/// Receives Priority Increment by Id (1 int) from Left Node if encounters in buffer, otherwise returns -1. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: PRIORITY_TAG
+/// Node: rightNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
+PriorityIncrement MPIManager::ReceivePriorityIncrement()
+{
+    PriorityIncrement priorityIncrement;
+    priorityIncrement.correct = false;
+    if(triedReceiveLeftPriority){
+        int flag;
+        MPI_Request_get_status(leftReceivePriority,&flag, MPI_STATUS_IGNORE);
+        if(flag){
+            priorityIncrement.newPriority = leftBufferPriority[0];
+            priorityIncrement.id = leftBufferPriority[1];
+            priorityIncrement.correct = true;
+            triedReceiveLeftPriority = false;
+        }
+    }
+    else {
+        MPI_Irecv(leftBufferPriority, 2, MPI_INT, leftNode, PRIORITY_TAG, MPI_COMM_WORLD, &leftReceivePriority);
+        triedReceiveLeftPriority = true;
+    }
+    return priorityIncrement;
+}
+
+
+///
+/// Receives Tokens (1 int) from Right Node if encounters in buffer, otherwise returns 0.
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: TOKENS_TAG
+/// Node: rightNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
+int MPIManager::ReceiveTokens()
+{
+    int tokens = 0;
+    if(triedReceiveRightTokens){
+        int flag;
+        MPI_Request_get_status(rightReceiveTokens,&flag, MPI_STATUS_IGNORE);
+        if(flag){
+            tokens = rightBufferTokens[0];
+            triedReceiveRightTokens = false;
+        }
+    }
+    else {
+        MPI_Irecv(rightBufferTokens, 1, MPI_INT, rightNode, TOKENS_TAG, MPI_COMM_WORLD, &rightReceiveTokens);
+        triedReceiveRightTokens = true;
+        
+    }
+    return tokens;
+}
+
+///
+/// Receives Id (1 int) from Left Node if encounters in buffer, otherwise returns -1. 
+/// MPI Communication
+/// Type: IRecv
+/// Message tag: CANCEL_REQUEST
+/// Node: leftNode
+/// Buffer size: 1
+/// Buffer datatype: MPI_INT
+///
+int MPIManager::ReceiveCancelRequest()
+{
+    int tokens = 0;
+    if(triedReceiveLeftCancelRequest){
+        int flag;
+        MPI_Request_get_status(leftReceiveCancelRequest,&flag, MPI_STATUS_IGNORE);
+        if(flag){
+            tokens = leftBufferCancelRequest[0];
+            triedReceiveLeftCancelRequest = false;
+        }
+    }
+    else {
+        MPI_Irecv(leftBufferCancelRequest, 1, MPI_INT, leftNode, CANCEL_REQUEST, MPI_COMM_WORLD, &leftReceiveCancelRequest);
+        triedReceiveLeftCancelRequest = true;
+        
+    }
+    return tokens;
+}

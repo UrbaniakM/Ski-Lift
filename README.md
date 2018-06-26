@@ -11,7 +11,7 @@ Michał Biderman
 
 Type in console
 ```
-mpic++ -w Ski-Lift/Ski-Lift/*.cpp -o Main
+mpic++ -w Implementation/*.cpp -o Main
 ```
 
 ### Running
