@@ -41,11 +41,6 @@ class Skier{
 		inline void EnterLift(){
 			printf("node:\t%d enters lift, tokens before entering:\t%d\n",rank,tokens);
 			tokens -= weight;
-			/*TokensStruct tokensStruct;
-			tokensStruct.tokens = tokens;
-			tokensStruct.target = -1;
-			communicationManager.SendTokens(tokensStruct);
-			tokens = 0;*/
 			priority = 0;
 			requests[rank].priority = 0;
 			communicationManager.SendCancelRequest(rank);
@@ -65,10 +60,8 @@ class Skier{
 
 		void PrintRequests(){
 			for(int i = 0; i < size; i++){
-				//if(requests[i].correct && requests[i].correct && i != rank){
-				if(requests[i].correct && requests[i].weight > 0 && i != rank){
+				if(requests[i].correct && requests[i].weight > 0 && i != rank)
 					printf("%d\t%d:\t%d %d\n",rank,i,requests[i].weight,requests[i].priority);
-				}
 			}
 		}
 

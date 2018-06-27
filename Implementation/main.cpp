@@ -6,7 +6,7 @@
 #include "Skier.h"
 #include "mpi.h"
 
-#define LIFT_CAPACITY 103
+#define LIFT_CAPACITY 80
 #define SKIER_WEIGHT 45
 
 int main(int argc, char **argv) {

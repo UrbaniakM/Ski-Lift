@@ -19,13 +19,11 @@ class MPIManager {
         }
 
         void SendRequest(Request request);
-        void SendRelease(Request request);
         void SendPriorityIncrement(int id);
         void SendTokens(TokensStruct tokens);
         void SendCancelRequest(int id);
 
         Request ReceiveRequest();
-        Request ReceiveRelease();
         int ReceivePriorityIncrement();
         TokensStruct ReceiveTokens();
         int ReceiveCancelRequest();
@@ -36,17 +34,14 @@ class MPIManager {
         int leftNode;
 
         bool triedReceiveLeftRequest;
-        bool triedReceiveLeftRelease;
         bool triedReceiveLeftPriority;
         bool triedReceiveRightTokens;
         bool triedReceiveLeftCancelRequest;
         MPI_Request leftReceiveRequest;
-        MPI_Request leftReceiveRelease;
         MPI_Request leftReceivePriority;
         MPI_Request rightReceiveTokens;
         MPI_Request leftReceiveCancelRequest;
         int leftBufferRequest[3];
-        int leftBufferRelease[3];
         int leftBufferPriority[1];
         int rightBufferTokens[2];
         int leftBufferCancelRequest[1];

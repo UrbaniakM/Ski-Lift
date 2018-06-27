@@ -2,7 +2,6 @@
 
 MPIManager::MPIManager(){
     triedReceiveLeftRequest = false;
-    triedReceiveLeftRelease = false;
     triedReceiveLeftPriority = false;
     triedReceiveRightTokens = false;
     triedReceiveLeftCancelRequest = false;
@@ -21,20 +20,6 @@ void MPIManager::SendRequest(Request request)
 {
     int arr[3] = { request.priority, request.weight, request.id};
 	MPI_Send(arr, 3, MPI_INT, rightNode, REQUEST_TAG, MPI_COMM_WORLD);
-}
-
-///
-/// Sends Release-Request (3 ints - priority, weight and id) to the Right Node.
-/// MPI Communication
-/// Type: Send
-/// Message tag: RELEASE_TAG
-/// Node: rightNode
-/// Buffer size: 3
-/// Buffer datatype: MPI_INT
-///
-void MPIManager::SendRelease(Request request){
-    int arr[3] = { request.priority, request.weight, request.id};
-	MPI_Send(arr, 3, MPI_INT, rightNode, RELEASE_TAG, MPI_COMM_WORLD);
 }
 
 ///
@@ -107,37 +92,6 @@ Request MPIManager::ReceiveRequest()
     else {
         MPI_Irecv(leftBufferRequest, 3, MPI_INT, leftNode, REQUEST_TAG, MPI_COMM_WORLD, &leftReceiveRequest);
         triedReceiveLeftRequest = true;
-    }
-	return r;
-}
-
-///
-/// Receives Release-Request (3 ints - priority, weight and id) from Left Node if encounters in buffer, otherwise release-request is marked as incorrect. 
-/// MPI Communication
-/// Type: IRecv
-/// Message tag: RELEASE_TAG
-/// Node: leftNode
-/// Buffer size: 3
-/// Buffer datatype: MPI_INT
-///
-Request MPIManager::ReceiveRelease()
-{
-    Request r;
-    r.correct = false;
-    if(triedReceiveLeftRelease){
-        int flag;
-        MPI_Request_get_status(leftReceiveRelease,&flag, MPI_STATUS_IGNORE);
-        if(flag){
-            r.priority = leftBufferRelease[0];
-            r.weight = leftBufferRelease[1];
-            r.id = leftBufferRelease[2];
-            r.correct = true;
-            triedReceiveLeftRelease = false;
-        }
-    }
-    else {
-        MPI_Irecv(leftBufferRelease, 3, MPI_INT, leftNode, RELEASE_TAG, MPI_COMM_WORLD, &leftReceiveRelease);
-        triedReceiveLeftRelease = true;
     }
 	return r;
 }

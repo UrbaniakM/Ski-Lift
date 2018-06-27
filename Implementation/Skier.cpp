@@ -86,9 +86,7 @@ void Skier::ReceiveTokens()
 			requests[tokensStruct.target].weight -= tokensStruct.tokens;
 			if (requests[tokensStruct.target].weight <= 0)
 			{
-				//requests[tokensStruct.target].correct = false;
 				requests[tokensStruct.target].weight = 0;
-				//communicationManager.SendCancelRequest(tokensStruct.target);
 			}
 			communicationManager.SendTokens(tokensStruct);
 		}
@@ -98,10 +96,7 @@ void Skier::ReceiveTokens()
 void Skier::ReceiveCancelRequest()
 {
 	int receiveVal = communicationManager.ReceiveCancelRequest();
-	//if (receiveVal >= 0 && requests[receiveVal].correct && receiveVal != rank)
-	if (receiveVal >= 0 && requests[receiveVal].weight > 0 && receiveVal != rank)
-	{
-		//requests[receiveVal].correct = false;
+	if (receiveVal >= 0 && requests[receiveVal].weight > 0 && receiveVal != rank) {
 		requests[receiveVal].weight = 0;
 		communicationManager.SendCancelRequest(receiveVal);
 	}
@@ -113,7 +108,6 @@ int Skier::IndexOfHighestPriorityRequest()
 	int highestPriority = -1;
 	for (int i = 0; i < size; i++)
 	{
-		//if (requests[i].correct && requests[i].priority >= highestPriority)
 		if (requests[i].weight > 0 && requests[i].priority >= highestPriority)
 		{
 			index = i;
@@ -127,7 +121,7 @@ int Skier::IndexProcessStarving()
 {
 	for (int i = 0; i < size; i++)
 	{
-		if (requests[i].priority > priority * 10)
+		if (requests[i].priority > priority * rank)
 		{
 			return i;
 		}
@@ -152,22 +146,11 @@ void Skier::Loop()
 			request.correct = true;
 			request.id = rank;
 			requests[rank] = request;
-			//printf("SENDING REQUEST,%d\n",rank);
 			communicationManager.SendRequest(request);
-			//printf("FINISHED SENDING REQUEST,%d\n",rank);
 		}
 
 		if (onLift && !isLifted())
-		{
 			LeaveLift();
-			//PrintRequests();
-		}
-		if (rank == 0)
-		{
-			//PrintNodes();
-			//	PrintRequests();
-			//sleep(2);
-		}
 
 		if (tokens > 0)
 		{
@@ -203,15 +186,8 @@ void Skier::Loop()
 						communicationManager.SendPriorityIncrement(rank);
 						requests[indexHighestPriority].weight -= possibleTokens;
 						tokens -= possibleTokens;
-						if (requests[indexHighestPriority].weight == 0)
-						{
-							//requests[indexHighestPriority].correct = false;
-							//communicationManager.SendCancelRequest(indexHighestPriority);
-						}
-						else
-						{
+						if (requests[indexHighestPriority].weight != 0)
 							communicationManager.SendRequest(requests[indexHighestPriority]);
-						}
 					}
 				}
 			}
