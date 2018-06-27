@@ -7,8 +7,8 @@ struct Request {
 	bool correct = false;
 };
 
-struct PriorityIncrement {
-	int newPriority;
-	int id;
+struct TokensStruct {
+	int tokens;
+	int target;
 	bool correct = false;
 };

@@ -23,5 +23,7 @@ int main(int argc, char **argv) {
     Skier skier = Skier(rank, size, tokens, SKIER_WEIGHT);
     skier.Loop();
 
+    printf("Skier\t%d closed\n",rank);
+
     MPI_Finalize();
 }

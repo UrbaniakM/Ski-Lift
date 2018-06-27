@@ -14,6 +14,9 @@ class Skier{
 		inline bool isLifted(){
 			return std::clock() < timeout;
 		}
+		inline bool canEnter(){
+			return std::clock() > timeout;
+		}
 	private:
 		int tokens;
 		int priority;
@@ -28,21 +31,32 @@ class Skier{
 		Request* requests; // size equal to number of skiers
 		MPIManager communicationManager;
 
-		inline void LeavingLift(){
+		inline void LeaveLift(){
 			tokens += weight;
+			printf("node:\t%d leaves lift, tokens after leave:\t%d\n",rank,tokens);
 			onLift = false;
+			timeout = std::clock() + 150000;
 		}
 
 		inline void EnterLift(){
-			printf("node:\tenters lift, tokens before entering:\t",rank,tokens);
+			printf("node:\t%d enters lift, tokens before entering:\t%d\n",rank,tokens);
 			tokens -= weight;
-			communicationManager.SendTokens(tokens);
+			/*TokensStruct tokensStruct;
+			tokensStruct.tokens = tokens;
+			tokensStruct.target = -1;
+			communicationManager.SendTokens(tokensStruct);
+			tokens = 0;*/
 			priority = 0;
 			requests[rank].priority = 0;
 			communicationManager.SendCancelRequest(rank);
-			timeout = std::clock() + 5000; // upon entering, wait 5 seconds for leaving lift
+			timeout = std::clock() + 1500000; // upon entering, wait 5 seconds for leaving lift
 			onLift = true;
 			sentRequest = false;
+			for(int i = 0; i < size; i++){
+				if(i == rank)
+					continue;
+				requests[i].priority++;
+			}
 		}
 
 		void PrintNodes(){
@@ -51,7 +65,8 @@ class Skier{
 
 		void PrintRequests(){
 			for(int i = 0; i < size; i++){
-				if(requests[i].correct && i != rank){
+				//if(requests[i].correct && requests[i].correct && i != rank){
+				if(requests[i].correct && requests[i].weight > 0 && i != rank){
 					printf("%d\t%d:\t%d %d\n",rank,i,requests[i].weight,requests[i].priority);
 				}
 			}
@@ -66,4 +81,6 @@ class Skier{
 		void ReceiveCancelRequest();
 
 		int IndexOfHighestPriorityRequest();
+
+		int IndexProcessStarving();
 };

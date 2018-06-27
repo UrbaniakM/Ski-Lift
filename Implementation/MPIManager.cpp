@@ -38,7 +38,7 @@ void MPIManager::SendRelease(Request request){
 }
 
 ///
-/// Send Priority Increment (Value to Add to Priority and Id - 2 ints) to the Right Node.
+/// Send Priority Increment Id (1 int) to the Right Node.
 /// MPI Communication
 /// Type: Send
 /// Message tag: PRIORITY_TAG
@@ -46,10 +46,10 @@ void MPIManager::SendRelease(Request request){
 /// Buffer size: 1
 /// Buffer datatype: MPI_INT
 ///
-void MPIManager::SendPriorityIncrement(PriorityIncrement priorityIncrement)
+void MPIManager::SendPriorityIncrement(int id)
 {
-    int arr[2] = { priorityIncrement.newPriority, priorityIncrement.id };
-	MPI_Send(arr, 2, MPI_INT, rightNode, PRIORITY_TAG, MPI_COMM_WORLD);
+    int arr[1] = { id };
+	MPI_Send(arr, 1, MPI_INT, rightNode, PRIORITY_TAG, MPI_COMM_WORLD);
 }
 
 ///
@@ -61,9 +61,9 @@ void MPIManager::SendPriorityIncrement(PriorityIncrement priorityIncrement)
 /// Buffer size: 1
 /// Buffer datatype: MPI_INT
 ///
-void MPIManager::SendTokens(int tokens){
-    int arr[1] = { tokens };
-    MPI_Send(arr, 1, MPI_INT, leftNode, TOKENS_TAG, MPI_COMM_WORLD);
+void MPIManager::SendTokens(TokensStruct tokens){
+    int arr[2] = { tokens.tokens, tokens.target };
+    MPI_Send(arr, 2, MPI_INT, leftNode, TOKENS_TAG, MPI_COMM_WORLD);
 }
 
 ///
@@ -151,25 +151,22 @@ Request MPIManager::ReceiveRelease()
 /// Buffer size: 1
 /// Buffer datatype: MPI_INT
 ///
-PriorityIncrement MPIManager::ReceivePriorityIncrement()
+int MPIManager::ReceivePriorityIncrement()
 {
-    PriorityIncrement priorityIncrement;
-    priorityIncrement.correct = false;
+    int id = -1;
     if(triedReceiveLeftPriority){
         int flag;
         MPI_Request_get_status(leftReceivePriority,&flag, MPI_STATUS_IGNORE);
         if(flag){
-            priorityIncrement.newPriority = leftBufferPriority[0];
-            priorityIncrement.id = leftBufferPriority[1];
-            priorityIncrement.correct = true;
+            id = leftBufferPriority[0];
             triedReceiveLeftPriority = false;
         }
     }
     else {
-        MPI_Irecv(leftBufferPriority, 2, MPI_INT, leftNode, PRIORITY_TAG, MPI_COMM_WORLD, &leftReceivePriority);
+        MPI_Irecv(leftBufferPriority, 1, MPI_INT, leftNode, PRIORITY_TAG, MPI_COMM_WORLD, &leftReceivePriority);
         triedReceiveLeftPriority = true;
     }
-    return priorityIncrement;
+    return id;
 }
 
 
@@ -182,19 +179,22 @@ PriorityIncrement MPIManager::ReceivePriorityIncrement()
 /// Buffer size: 1
 /// Buffer datatype: MPI_INT
 ///
-int MPIManager::ReceiveTokens()
+TokensStruct MPIManager::ReceiveTokens()
 {
-    int tokens = 0;
+    TokensStruct tokens;
+    tokens.correct = false;
     if(triedReceiveRightTokens){
         int flag;
         MPI_Request_get_status(rightReceiveTokens,&flag, MPI_STATUS_IGNORE);
         if(flag){
-            tokens = rightBufferTokens[0];
+            tokens.tokens = rightBufferTokens[0];
+            tokens.target = rightBufferTokens[1];
+            tokens.correct = true;
             triedReceiveRightTokens = false;
         }
     }
     else {
-        MPI_Irecv(rightBufferTokens, 1, MPI_INT, rightNode, TOKENS_TAG, MPI_COMM_WORLD, &rightReceiveTokens);
+        MPI_Irecv(rightBufferTokens, 2, MPI_INT, rightNode, TOKENS_TAG, MPI_COMM_WORLD, &rightReceiveTokens);
         triedReceiveRightTokens = true;
         
     }
@@ -212,12 +212,12 @@ int MPIManager::ReceiveTokens()
 ///
 int MPIManager::ReceiveCancelRequest()
 {
-    int tokens = 0;
+    int id = -1;
     if(triedReceiveLeftCancelRequest){
         int flag;
         MPI_Request_get_status(leftReceiveCancelRequest,&flag, MPI_STATUS_IGNORE);
         if(flag){
-            tokens = leftBufferCancelRequest[0];
+            id = leftBufferCancelRequest[0];
             triedReceiveLeftCancelRequest = false;
         }
     }
@@ -226,5 +226,5 @@ int MPIManager::ReceiveCancelRequest()
         triedReceiveLeftCancelRequest = true;
         
     }
-    return tokens;
+    return id;
 }
