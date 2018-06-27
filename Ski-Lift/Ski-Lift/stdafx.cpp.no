@@ -1,8 +1,0 @@
-// stdafx.cpp: plik zródBowy , który zawiera tylko standardowe zawarcia
-// Plik Ski-Lift.pch bdzie wstpnie kompilowanym nagBówkiem
-// stdafx.obj bdzie zawiera informacje typu wstpnie skompilowanego
-
-#include "stdafx.h"
-
-// TODO: odwoBaj si do dowolnych dodatkowych nagBówków, których potrzebujesz w pliku STDAFX.H
-// a nie w tym pliku

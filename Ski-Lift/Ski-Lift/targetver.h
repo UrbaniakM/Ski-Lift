@@ -1,8 +1,0 @@
-#pragma once
-
-// DoBczenie nagBówka SDKDDKVer.h definiuje najwy|sz dostpn platform systemu Windows.
-
-// Je[li chcesz skompilowa aplikacj dla wcze[niejszej platformy systemu Windows, doBcz nagBówek WinSDKVer.h i
-// ustaw makro _WIN32_WINNT na platform, któr chcesz wspiera, przed doBczeniem nagBówka SDKDDKVer.h.
-
-#include <SDKDDKVer.h>
